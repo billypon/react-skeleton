@@ -1,0 +1,11 @@
+#!/bin/bash
+
+patch-package
+
+link-package() {
+  rm -rf node_modules/$1
+  ln -s $2 node_modules/$1
+}
+
+link-package customize-cra @billypon/customize-cra
+link-package pug-as-jsx-utils @billypon/pug-as-jsx-utils

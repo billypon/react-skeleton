@@ -1,0 +1,51 @@
+{
+  "name": "react-skeleton",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
+    "postinstall": "bin/postinstall"
+  },
+  "dependencies": {
+    "@babel/preset-react": "7.0.0",
+    "@billypon/customize-cra": "0.7.1",
+    "@billypon/pug-as-jsx-utils": "1.0.33",
+    "@billypon/react-decorator": "0.1.0",
+    "@twist/babel-plugin-transform-react": "https://github.com/billypon/babel-plugin-transform-react-twist",
+    "@types/jest": "24.0.18",
+    "@types/node": "12.7.5",
+    "@types/react": "16.9.2",
+    "@types/react-dom": "16.9.0",
+    "@types/react-router-dom": "4.3.5",
+    "babel-loader": "8.0.6",
+    "customize-cra": "0.7.0",
+    "less-loader": "5.0.0",
+    "patch-package": "6.2.0",
+    "pug-as-jsx-loader": "1.0.76",
+    "react": "16.9.0",
+    "react-app-rewired": "2.1.3",
+    "react-dom": "16.9.0",
+    "react-router-dom": "5.0.1",
+    "react-scripts": "3.1.1",
+    "style-loader": "1.0.0",
+    "stylus": "0.54.7",
+    "stylus-loader": "3.0.2",
+    "tslint": "5.20.0",
+    "typescript": "3.5.3"
+  },
+  "browserslist": {
+    "production": [
+      "> 0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
