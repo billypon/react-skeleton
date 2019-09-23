@@ -1,0 +1,19 @@
+@import '~antd/es/style/index';
+@import './variable/index';
+
+.body-overflow {
+  overflow: hidden;
+}
+
+.spin-global .ant-spin {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+
+  &-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: @spin-dot-size-lg / -2;
+  }
+}

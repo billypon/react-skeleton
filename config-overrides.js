@@ -1,4 +1,4 @@
-const { override, addWebpackModuleRule, addWebpackAlias, adjustStyleLoaders } = require('customize-cra');
+const { override, addWebpackModuleRule, addWebpackAlias, fixBabelImports, adjustStyleLoaders } = require('customize-cra');
 const path = require('path');
 
 const isEnvProd = process.env.NODE_ENV === 'production';
@@ -21,8 +21,13 @@ module.exports = {
       if (processor && processor.loader.includes('stylus-loader')) {
         Object.assign(processor.options, {
           include: [ __dirname + '/node_modules' ],
+          use: [ require('stylus-less')({ cache: false }) ],
         });
       }
+    }),
+    fixBabelImports('import', {
+      libraryName: 'antd',
+      libraryDirectory: 'es',
     }),
     addWebpackAlias({
       '~': path.resolve('src'),

@@ -1,0 +1,92 @@
+diff --git a/node_modules/babel-plugin-import/lib/Plugin.js b/node_modules/babel-plugin-import/lib/Plugin.js
+index 477e5c8..4a416d2 100644
+--- a/node_modules/babel-plugin-import/lib/Plugin.js
++++ b/node_modules/babel-plugin-import/lib/Plugin.js
+@@ -30,6 +30,9 @@ function normalizeCustomName(originCustomName) {
+   return originCustomName;
+ }
+ 
++const fs = require('fs');
++const cwd = process.cwd();
++
+ class Plugin {
+   constructor(libraryName, libraryDirectory, style, camel2DashComponentName, camel2UnderlineComponentName, fileName, customName, transformToDefaultImport, types, index = 0) {
+     this.libraryName = libraryName;
+@@ -42,6 +45,28 @@ class Plugin {
+     this.transformToDefaultImport = typeof transformToDefaultImport === 'undefined' ? true : transformToDefaultImport;
+     this.types = types;
+     this.pluginStateKey = `importPluginState${index}`;
++    if (libraryName === 'antd') {
++      const antd = {
++        output: 'src/styles/antd.less',
++        baseUrl: `~antd/${this.libraryDirectory}`,
++        components: {},
++        allComponents: null,
++      };
++      const importBase = `@import '${antd.baseUrl}`;
++      try {
++        fs.accessSync(antd.output, fs.constants.R_OK | fs.constants.W_OK);
++        const lines = fs.readFileSync(antd.output).toString().split('\n').filter(x => x);
++        lines.filter(x => x.startsWith('//')).forEach(line => {
++          const [key, value] = line.substr(3).split(': ');
++          antd.components[key] = value.split(', ');
++        });
++        antd.allComponents = lines.filter(x => !x.startsWith('//'))
++          .map(x => x.substr(importBase.length + 1).split('/')[0])
++          .join(',');
++      } catch (err) {
++      }
++      this.antd = antd;
++    }
+   }
+ 
+   getPluginState(state) {
+@@ -115,8 +140,48 @@ class Plugin {
+ 
+   ProgramExit(path, state) {
+     this.getPluginState(state).pathsToRemove.forEach(p => !p.removed && p.remove());
++    const {antd} = this;
++    if (antd) {
++      const pluginState = this.getPluginState(state);
++      const {filename, sourceFileName} = path.hub.file.opts;
++      if (filename !== sourceFileName) {
++        console.log(filename, sourceFileName);
++        process.exit();
++      }
++      antd.components[filename.substr(cwd.length + 5)] = Object.keys(pluginState.specified).map(x => transCamel(x, '-'));
++      if (antd.inited) {
++        this.GenerateAntd(antd);
++      } else {
++        clearTimeout(antd.timeout);
++        antd.timeout = setTimeout(() => this.GenerateAntd(antd), 1000);
++      }
++    }
+   }
+ 
++  GenerateAntd(antd) {
++    const totalComponents = Object.values(antd.components).reduce((total, current) => total.concat(current));
++    const sortedComponents = [];
++    (new Set(totalComponents)).forEach(x => {
++      try {
++        fs.accessSync(`node_modules/${antd.baseUrl.substr(1)}/${x}/style/index.less`, fs.constants.R_OK);
++        sortedComponents.push(x)
++      } catch (err) {
++      }
++    });
++    sortedComponents.sort();
++    const allComponents = sortedComponents.join(',');
++    if (allComponents !== antd.allComponents) {
++      const imports = sortedComponents.map(x => `@import '${antd.baseUrl}/${x}/style/index';`).join('\n');
++      const comments = Object.entries(antd.components)
++        .filter(([, value]) => value.length)
++        .map(([key, value]) => `// ${key}: ${value.sort().join(', ')}`)
++        .join('\n');
++      fs.writeFileSync(antd.output, `${imports}\n${comments}`);
++      antd.allComponents = allComponents;
++    }
++    antd.inited = true;
++   }
++
+   ImportDeclaration(path, state) {
+     const node = path.node; // path maybe removed by prev instances.
+ 

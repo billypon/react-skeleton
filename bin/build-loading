@@ -1,0 +1,3 @@
+#!/bin/bash
+
+lessc --include-path=node_modules --js -x src/styles/loading.less > src/loading.css
